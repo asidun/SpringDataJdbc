@@ -8,7 +8,7 @@ import org.springframework.data.annotation.Id;
 @Builder
 public class Book {
     @Id
-    private long id;
+    private Long id;
     private String title;
     private String author;
 }

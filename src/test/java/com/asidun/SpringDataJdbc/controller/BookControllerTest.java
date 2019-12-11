@@ -12,7 +12,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -51,27 +53,25 @@ public class BookControllerTest {
 
     @Test
     void updateBook() throws Exception {
-        Book savedBook = bookRepository.save(book);
-        savedBook.setAuthor("New Author");
-        bookRepository.save(savedBook);
-        book.setAuthor("Old author");
+        book = bookRepository.save(book);
+        book.setAuthor("New Author");
         bookRepository.save(book);
-//        savedBook.setAuthor("New Author111");
-//        bookRepository.save(savedBook);
-//        mockMvc.perform(post("/books")
-//                .contentType("application/json")
-//                .content(objectMapper.writeValueAsString(book)))
-//                .andExpect(status().isOk());
+        Book savedBook = book;
+        savedBook.setAuthor("REST Author");
 
-        Book resultBook = bookRepository.findByAuthor("New Author");
+        mockMvc.perform(post("/books")
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(savedBook)))
+                .andExpect(status().isOk());
+
+        Book resultBook = bookRepository.findByAuthor("REST Author");
         assertThat(resultBook.getTitle()).isEqualTo("Book");
         Book resultOldBook = bookRepository.findByAuthor("Author");
-        System.out.println(resultOldBook);
-        //assertThat(resultOldBook).isNull();
+        assertThat(resultOldBook).isNull();
     }
 
     @Test
-    void updateWrongBook() throws Exception {
+    void updateBookById() throws Exception {
         Book savedBook = bookRepository.save(book);
         savedBook.setAuthor("New Author");
         mockMvc.perform(put("/books/{id}", savedBook.getId())
